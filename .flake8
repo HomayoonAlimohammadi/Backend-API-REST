@@ -1,0 +1,19 @@
+[flake8]
+exclude =
+    .git,
+    .gitignore,
+    *.pot,
+    *.py[co],
+    __pycache__,
+    venv,
+    .env,
+    env,
+    env/,
+    Dockerfile.
+    docker-compose,
+    README.md,
+    requirements.txt,
+    .github/,
+    Udemy - Build a Backend REST API with Python & Django - Advanced 2021-12/,
+    ./app/settings.py,
+    ./*/__pycache__/,
