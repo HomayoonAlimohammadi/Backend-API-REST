@@ -10,7 +10,7 @@ venv
 env
 env/
 Dockerfile
-docker-compose
+docker-compose.yaml
 README.md
 requirements.txt
 .github/

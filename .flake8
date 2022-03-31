@@ -17,4 +17,12 @@ exclude =
     Udemy - Build a Backend REST API with Python & Django - Advanced 2021-12/,
     ./app/settings.py,
     ./*/__pycache__/,
-    *.sqlite3
+    *.sqlite3,
+    */migrations/
+
+
+ignore =
+    W292,
+    W293,
+    W291,
+
