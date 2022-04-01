@@ -13,6 +13,8 @@ CREATE_USER_URL = reverse('user:create')
 
 CREATE_TOKEN_URL = reverse('user:token')
 
+EDIT_USER_URL = reverse('user:edit')
+
 
 class PublicUserAPITest(TestCase):
 
@@ -136,3 +138,64 @@ class PublicUserAPITest(TestCase):
 
         self.assertNotIn('token', res.data)
         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_retrieve_edit_unauthorized(self):
+        '''
+        Test retrieving edit url unauthorized fail
+        '''
+        res = self.client.get(EDIT_USER_URL)
+
+        self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)
+
+
+class PrivateAPIUserTest(TestCase):
+    '''
+    Tests for authorized users
+    '''
+    def setUp(self):
+
+        self.client = APIClient()
+        self.user = create_user(
+            email='test@test.com',
+            password='test123',
+            name='name'
+        )
+    
+        self.client.force_authenticate(user=self.user)
+
+    def test_retrieve_user_profile(self):
+        '''
+        Test retrieving authorized user profile
+        '''
+        res = self.client.get(EDIT_USER_URL)
+
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(res.data, {
+            'email': 'test@test.com',
+            'name': 'name'
+        })
+
+    def test_post_edit_not_allowed(self):
+        '''
+        Test sending POST request to user edit url not allowed
+        '''
+        res = self.client.post(EDIT_USER_URL, {})
+
+        self.assertEqual(res.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
+
+    def test_edit_profile_success(self):
+        '''
+        Test editting user profile is successful
+        '''
+        payload = {
+            'password': 'newtest123',
+            'name': 'newname'
+        }
+        res = self.client.patch(EDIT_USER_URL, payload)
+
+        # Refresh self.user from DB
+        self.user.refresh_from_db()
+
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(self.user.name, payload['name'])
+        self.assertTrue(self.user.check_password(payload['password']))
