@@ -10,6 +10,7 @@ def create_user(**params):
 
 CREATE_USER_URL = reverse('user:create')
 
+CREATE_TOKEN_URL = reverse('user:token')
 
 class PublicUserAPITest(TestCase):
 
@@ -67,4 +68,72 @@ class PublicUserAPITest(TestCase):
         
         self.assertFalse(user_exists)
 
+    def test_token_create_success(self):
+        '''
+        Testing to create token for valdi user credentials successfully
+        '''
+        payload = {
+            'email': 'test@test.com',
+            'password': 'test123',
+            'name': 'test name'
+        }
+        create_user(**payload)
+
+        res = self.client.post(CREATE_TOKEN_URL, payload)
+
+        self.assertIn('token', res.data)
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+
+    def test_token_no_user(self):
+        '''
+        Test to obtain token for non-existing user
+        '''
+        payload = {
+            'email': 'test@test.com',
+            'password': 'test123',
+            'name': 'test name'
+        }
+        res = self.client.post(CREATE_TOKEN_URL, payload)
+
+        self.assertNotIn('token', res.data)
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_token_invalid_password(self):
+        '''
+        Test obtaining token for user with invalid password
+        '''
+        payload = {
+            'email': 'test@test.com',
+            'password': 'test123',
+            'name': 'test name'
+        }
+        create_user(**payload)
+
+        res = self.client.post(CREATE_TOKEN_URL, {
+            'email': 'test@test.com',
+            'password': 'wrong'
+        })        
+
+        self.assertNotIn('token', res.data)
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_token_blank_password(self):
+        '''
+        Test obtaining token for valid user with blank password
+        '''
+        payload = {
+            'email': 'test@test.com',
+            'password': 'test123',
+            'name': 'test name'
+        }
+        create_user(**payload)
+
+        res = self.client.post(CREATE_TOKEN_URL, {
+            'email': 'test@test.com',
+        })
+
+        self.assertNotIn('token', res.data)
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+
+        
 
