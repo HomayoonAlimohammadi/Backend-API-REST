@@ -64,7 +64,3 @@ class ModelTests(TestCase):
                 email='', password='test123')
             get_user_model().objects.create_superuser(
                 email='test@test.com', password=None)
-
-        
-            
-            
