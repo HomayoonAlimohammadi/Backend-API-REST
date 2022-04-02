@@ -12,12 +12,11 @@ from django.urls import reverse
 
 INGREDIENTS_URL = reverse('recipe:ingredient-list')
 
+
 class PublicIngredientAPITests(TestCase):
 
     def setUp(self):
-
         self.client = APIClient()
-        
 
     def test_ingredients_retrieve_unauthorized_fail(self):
         '''

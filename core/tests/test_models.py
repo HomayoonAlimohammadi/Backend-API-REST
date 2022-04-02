@@ -96,8 +96,8 @@ class ModelTests(TestCase):
         '''
         user = sample_user()
         payload = {
-            'user':user,
-            'name':'ingredient 1',
+            'user': user,
+            'name': 'ingredient 1',
         }
         ingredient = models.Ingredient.objects.create(**payload)
         
