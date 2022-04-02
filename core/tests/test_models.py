@@ -88,3 +88,17 @@ class ModelTests(TestCase):
         )
 
         self.assertEqual(str(tag), tag.name)
+
+    def test_ingredient_string(self):
+        '''
+        Test string representation of the ingredients
+        match their name
+        '''
+        user = sample_user()
+        payload = {
+            'user':user,
+            'name':'ingredient 1',
+        }
+        ingredient = models.Ingredient.objects.create(**payload)
+        
+        self.assertEqual(str(ingredient), payload['name'])
