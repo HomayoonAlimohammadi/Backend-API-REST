@@ -211,30 +211,52 @@ class PrivateRecipeAPITests(TestCase):
         self.assertEqual(len(res.data['tags']), 2)
         self.assertEqual(res.data['tags'][0], payload['tags'][0])
 
+    def test_patch_method_for_recpie(self):
+        '''
+        Test partially changing recpie attributes with patch method
+        '''
+        recipe = Recipe.objects.create(
+            title='recpie 1',
+            price=1.00,
+            time_minutes=1,
+            user=self.user
+        )
 
-#############################################################################
+        recipe.tags.add(self.tag_1)
+        recipe.ingredients.add(self.ingredient_1)
 
-    # def test_create_recipes_success(self):
-    #     '''
-    #     Test creating a recipe with authorized user is successful
-    #     '''
+        payload = {
+            'title': 'recpie 1 editted',
+            'time_minutes': 2,
+            'tags': [self.tag_2.id],
+            'ingredients': [self.ingredient_2.id]
+        }
 
-    #     payload = {
-    #         'name': 'recipe 1',
-    #         'tags': 'test tag 1',
-    #         'ingredients': ['test ingredient 1', 'test ingredient 2'],
-    #     }
-    #     res = self.client.post(RECIPE_URL, payload)
+        url = recipe_detail_url(recipe)
+        res = self.client.patch(url, payload)
 
-    #     self.assertEqual(res.status_code, status.HTTP_201_CREATED)
-    #     self.assertTrue(False)
+        recipe.refresh_from_db()
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        for key in payload.keys():
 
-    # def test_creating_invalid_recipe_fail(self):
-    #     '''
-    #     Test creating recipe with no name fail
-    #     '''
-    #     payload = {
-    #         'name': ''
-    #     }
+            self.assertEqual(res.data[key], payload[key])
 
-    #     res = self.client.post(RECIPE_URL, payload)
+    def test_put_method_for_recipe(self):
+        '''
+        Test whole changes with put method for recipes
+        '''
+        recipe = Recipe.objects.create(
+            user=self.user,
+            title='recipe 1',
+        )
+        payload = {
+            'title': 'recipe 1 editted',
+        }
+
+        url = recipe_detail_url(recipe)
+        res = self.client.put(url, payload)
+
+        recipe.refresh_from_db()
+
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(res.data['title'], payload['title'])
