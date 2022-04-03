@@ -1,7 +1,6 @@
 from django.test import TestCase
 from django.contrib.auth import get_user_model
 from core import models
-import decimal
 
 
 def sample_user(email='test@test.com', password='test123'):
@@ -113,6 +112,7 @@ class ModelTests(TestCase):
             'title': 'recipe 1',
             'user': user,
             'time_minutes': 20,
+            'price': 1.00
         }
         recipe = models.Recipe.objects.create(**payload)
 

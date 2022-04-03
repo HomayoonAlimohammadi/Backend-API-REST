@@ -1,6 +1,6 @@
 from rest_framework import mixins, viewsets, authentication, permissions
 from core import models
-from recipe.serializers import (IngredientSerializer,
+from recipe.serializers import (IngredientSerializer, RecipeDetailSerializer,
                                 TagSerializer,
                                 RecipeSerializer)
 
@@ -66,7 +66,24 @@ class RecipeViewSets(viewsets.ModelViewSet):
 
     def get_queryset(self):
         return self.queryset.filter(user=self.request.user)
+    
+    def get_serializer_class(self):
+        if self.action == 'retrieve':
+            return RecipeDetailSerializer
         
+        return self.serializer_class
+
+    def perform_create(self, serializer):
+
+        recipe_related_qs = self.request.user.recipes.all()
+        recipe_titles = [recipe.title for recipe in recipe_related_qs]
+
+        if serializer.validated_data['title'] in recipe_titles:
+            msg = 'Duplicate Recipes can not be created by the same user'
+            raise ValueError(msg)
+
+        serializer.save(user=self.request.user)
+
     # def perform_create(self, serializer):
     #     '''
     #     Adding Recipe and Ingredients from database or creating them
