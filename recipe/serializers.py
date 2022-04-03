@@ -33,4 +33,5 @@ class RecipeSerializer(serializers.ModelSerializer):
         model = models.Recipe
         fields = ['id', 'title', 'ingredients', 
                   'tags', 'time_minutes', 'price', 'link']
-        read_only_fields = ['id']    
+        read_only_fields = ['id'] 
+        # depth = 1   
