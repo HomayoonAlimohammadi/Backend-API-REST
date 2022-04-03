@@ -13,6 +13,16 @@ from django.urls import reverse
 INGREDIENTS_URL = reverse('recipe:ingredient-list')
 
 
+def sample_user(email='sample@test.com',
+                password='sample123',
+                name='sample user'):
+    return get_user_model().objects.create_user(
+        email=email,
+        password=password,
+        name=name
+    )
+
+
 class PublicIngredientAPITests(TestCase):
 
     def setUp(self):
@@ -45,16 +55,73 @@ class PrivateIngredientsAPITests(TestCase):
         Test retrieving ingredients with authenticated user 
         is successful
         '''
-        payload = {
-            'name': 'ingredient 1',
-            'user': self.user,
-        }
-        Ingredient.objects.create(**payload)
+        Ingredient.objects.create(user=self.user, name='ingrd1')
+        Ingredient.objects.create(user=self.user, name='ingrd2')
+
+        res = self.client.get(INGREDIENTS_URL)
+
+        ingredients = Ingredient.objects.all().order_by('name')
+        serializer = IngredientSerializer(ingredients, many=True)
+
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(res.data), 2)
+        self.assertEqual(res.data, serializer.data)
+
+    def test_retrieve_ingredients_limited_to_user(self):
+        '''
+        Test retrieving only the ingredients that are of
+        property of the request user and nothing more
+        '''
+        sampleUser = sample_user()
+        Ingredient.objects.create(user=sampleUser, name='ingrd1')
+
+        ingredient = Ingredient.objects.create(user=self.user, name='ingrd2')
 
         res = self.client.get(INGREDIENTS_URL)
 
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         self.assertEqual(len(res.data), 1)
-        self.assertEqual(res.data[0]['name'], payload['name'])
+        self.assertEqual(res.data[0]['name'], ingredient.name)
 
+    def test_create_ingredients_success(self):
+        '''
+        Test creating ingredients by authorized user is successful
+        '''
+        payload = {
+            'name': 'ingrd1',
+        }
+
+        res = self.client.post(INGREDIENTS_URL, payload)
+        exists = Ingredient.objects.filter(
+            name=payload['name'],
+            user=self.user
+        ).exists()
+
+        self.assertEqual(res.status_code, status.HTTP_201_CREATED)
+        self.assertTrue(exists)
+
+    def test_create_invalid_ingredients_fail(self):
+        '''
+        Test creating ingredients without a name fail
+        '''
+        payload = {
+            'name': '',
+        }
+
+        res = self.client.post(INGREDIENTS_URL, payload)
+
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
         
+    def test_creating_duplicate_ingredients_by_user_fail(self):
+        '''
+        Test creating ingredients with duplicate names
+        by the same user fail
+        '''
+        payload = {
+            'name': 'ingredient 1',
+            'user': self.user
+        }
+        Ingredient.objects.create(**payload)
+
+        with self.assertRaises(ValueError):
+            self.client.post(INGREDIENTS_URL, payload)
