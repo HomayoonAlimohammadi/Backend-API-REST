@@ -55,56 +55,61 @@ class IngredientsAPIViewSets(RecipeAttributesViewSets):
         serializer.save(user=self.request.user)
 
 
-class RecipeViewSets(RecipeAttributesViewSets):
+class RecipeViewSets(viewsets.ModelViewSet):
     '''
     Recipe API ViewSets for Listing and CRUS Operations
     '''
     queryset = models.Recipe.objects.all()
     serializer_class = RecipeSerializer
+    authentication_classes = [authentication.TokenAuthentication]
+    permission_classes = [permissions.IsAuthenticated]
 
-    def perform_create(self, serializer):
-        '''
-        Adding Recipe and Ingredients from database or creating them
-        if not available.
-        Also setting the recipe user as the request user
-        '''
-        recipe_related_qs = self.request.user.recipes.all()
-        recipe_names = [recipe.name for recipe in recipe_related_qs]
+    def get_queryset(self):
+        return self.queryset.filter(user=self.request.user)
+        
+    # def perform_create(self, serializer):
+    #     '''
+    #     Adding Recipe and Ingredients from database or creating them
+    #     if not available.
+    #     Also setting the recipe user as the request user
+    #     '''
+    #     recipe_related_qs = self.request.user.recipes.all()
+    #     recipe_names = [recipe.name for recipe in recipe_related_qs]
 
-        if serializer.validated_data['name'] in recipe_names:
-            msg = 'Recipes can not have duplicate names'
-            raise ValueError(msg)
+    #     if serializer.validated_data['name'] in recipe_names:
+    #         msg = 'Recipes can not have duplicate names'
+    #         raise ValueError(msg)
 
-        for tag_name in serializer.validated_data['tags']:
+    #     for tag_name in serializer.validated_data['tags']:
 
-            tag = models.Tag.objects.filter(
-                name=tag_name,
-                user=self.request.user
-                ).first()
+    #         tag = models.Tag.objects.filter(
+    #             name=tag_name,
+    #             user=self.request.user
+    #             ).first()
             
-            if not tag:
-                tag = models.Tag.objects.create(
-                    name=tag_name,
-                    user=self.request.user
-                )
+    #         if not tag:
+    #             tag = models.Tag.objects.create(
+    #                 name=tag_name,
+    #                 user=self.request.user
+    #             )
             
-            tag_serialized = TagSerializer(tag).data
-            serializer.validated_data['tags'] += tag_serialized
+    #         tag_serialized = TagSerializer(tag).data
+    #         serializer.validated_data['tags'] += tag_serialized
 
-        for ingredient_name in serializer.validated_data['ingredients']:
+    #     for ingredient_name in serializer.validated_data['ingredients']:
 
-            ingredient = models.Ingredient.objects.filter(
-                name=ingredient_name,
-                user=self.request.user
-            ).first()
+    #         ingredient = models.Ingredient.objects.filter(
+    #             name=ingredient_name,
+    #             user=self.request.user
+    #         ).first()
 
-            if not ingredient:
-                ingredient = models.Ingredient.create(
-                    name=ingredient_name,
-                    user=self.request.user
-                )
+    #         if not ingredient:
+    #             ingredient = models.Ingredient.create(
+    #                 name=ingredient_name,
+    #                 user=self.request.user
+    #             )
             
-            ingredient_serialized = IngredientSerializer(ingredient).data
-            serializer.validated_data['ingredients'] += ingredient_serialized
+    #         ingredient_serialized = IngredientSerializer(ingredient).data
+    #         serializer.validated_data['ingredients'] += ingredient_serialized
 
-        serializer.save(user=self.request.user)
+    #     serializer.save(user=self.request.user)
