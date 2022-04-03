@@ -1,6 +1,7 @@
 from django.test import TestCase
 from django.contrib.auth import get_user_model
 from core import models
+import decimal
 
 
 def sample_user(email='test@test.com', password='test123'):
@@ -109,9 +110,10 @@ class ModelTests(TestCase):
         '''
         user = sample_user()
         payload = {
-            'name': 'recipe 1',
-            'user': user
+            'title': 'recipe 1',
+            'user': user,
+            'time_minutes': 20,
         }
         recipe = models.Recipe.objects.create(**payload)
 
-        self.assertEqual(str(recipe), recipe.name)
+        self.assertEqual(str(recipe), recipe.title)
