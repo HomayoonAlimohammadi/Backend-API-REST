@@ -82,3 +82,32 @@ class Ingredient(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class Recipe(models.Model):
+
+    name = models.CharField(max_length=255)
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='recipes',
+    )
+    time_minutes = models.IntegerField(default=10)
+    price = models.DecimalField(max_digits=5, decimal_places=2, default=999)
+    link = models.CharField(max_length=255, blank=True)
+
+    # using string for the manytomany model instead of the model itself
+    # makes it so we don't have to order them correctly
+    # otherwise we would have to place Recipe below both Ingredient and
+    # Tag model.
+    ingredients = models.ManyToManyField(
+        'Ingredient',
+        related_name='recipes'
+    )
+    tags = models.ManyToManyField(
+        'Tag',
+        related_name='tags'
+    )
+
+    def __str__(self):
+        return self.name

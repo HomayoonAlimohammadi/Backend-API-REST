@@ -102,3 +102,16 @@ class ModelTests(TestCase):
         ingredient = models.Ingredient.objects.create(**payload)
         
         self.assertEqual(str(ingredient), payload['name'])
+
+    def test_recipe_string(self):
+        '''
+        Test string representation of the recipes is their name
+        '''
+        user = sample_user()
+        payload = {
+            'name': 'recipe 1',
+            'user': user
+        }
+        recipe = models.Recipe.objects.create(**payload)
+
+        self.assertEqual(str(recipe), recipe.name)

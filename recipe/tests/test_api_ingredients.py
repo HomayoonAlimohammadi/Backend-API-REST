@@ -7,7 +7,7 @@ from rest_framework.test import APIClient
 from core.models import Ingredient
 from recipe.serializers import IngredientSerializer
 
-from django.urls import reverse 
+from django.urls import reverse
 
 
 INGREDIENTS_URL = reverse('recipe:ingredient-list')

@@ -17,4 +17,10 @@ class IngredientSerializer(serializers.ModelSerializer):
         fields = ['id', 'name']
         read_only_fields = ['id']
 
-    
+
+class RecipeSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = models.Recipe
+        fields = ['id', 'name', 'ingredients', 'tags']
+        read_only_fields = ['id']    
