@@ -1,3 +1,5 @@
+from unittest.mock import patch
+
 from django.test import TestCase
 from django.contrib.auth import get_user_model
 from core import models
@@ -117,3 +119,16 @@ class ModelTests(TestCase):
         recipe = models.Recipe.objects.create(**payload)
 
         self.assertEqual(str(recipe), recipe.title)
+
+    @patch('uuid.uuid4')
+    def test_recipe_image_field_url(self, mock_function):
+        '''
+        Test url generator for the image field
+        '''
+        uuid_return = 'test-image'
+        mock_function.return_value = uuid_return
+
+        url = models.recipe_image_field_url('mytestimage.jpg')
+        exp_url = f'uploads/recipe/{uuid_return}.jpg'
+
+        self.assertEqual(url, exp_url)

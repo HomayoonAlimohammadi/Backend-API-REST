@@ -2,6 +2,18 @@ from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, \
     PermissionsMixin
 from django.conf import settings
+import uuid
+import os
+
+
+def recipe_image_field_url(filename):
+    '''
+    Generate url for the recipe image field
+    '''
+    ext = filename.split('.')[-1]
+    filename = f'{uuid.uuid4()}.{ext}'
+
+    return os.path.join('uploads/recipe/', filename)
 
 
 class UserManager(BaseUserManager):
@@ -95,6 +107,7 @@ class Recipe(models.Model):
     time_minutes = models.IntegerField(default=10)
     price = models.DecimalField(max_digits=5, decimal_places=2, default=999)
     link = models.CharField(max_length=255, blank=True)
+    image = models.ImageField(null=True, upload_to=recipe_image_field_url)
 
     # using string for the manytomany model instead of the model itself
     # makes it so we don't have to order them correctly
