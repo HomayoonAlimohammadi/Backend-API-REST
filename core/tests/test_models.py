@@ -128,7 +128,7 @@ class ModelTests(TestCase):
         uuid_return = 'test-image'
         mock_function.return_value = uuid_return
 
-        url = models.recipe_image_field_url('mytestimage.jpg')
+        url = models.recipe_image_field_url(None, 'mytestimage.jpg')
         exp_url = f'uploads/recipe/{uuid_return}.jpg'
 
         self.assertEqual(url, exp_url)

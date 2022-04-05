@@ -1,7 +1,10 @@
-from rest_framework import mixins, viewsets, authentication, permissions
+from rest_framework.decorators import action
+from rest_framework.response import Response
+from rest_framework import (mixins, viewsets, authentication, 
+                            permissions, status)
 from core import models
-from recipe.serializers import (IngredientSerializer, RecipeDetailSerializer,
-                                TagSerializer,
+from recipe.serializers import (IngredientSerializer, RecipeDetailSerializer, 
+                                RecipeImageSerializer, TagSerializer,
                                 RecipeSerializer)
 
 
@@ -68,9 +71,13 @@ class RecipeViewSets(viewsets.ModelViewSet):
         return self.queryset.filter(user=self.request.user)
     
     def get_serializer_class(self):
+        
         if self.action == 'retrieve':
             return RecipeDetailSerializer
         
+        elif self.action == 'upload_image':
+            return RecipeImageSerializer
+
         return self.serializer_class
 
     def perform_create(self, serializer):
@@ -84,49 +91,23 @@ class RecipeViewSets(viewsets.ModelViewSet):
 
         serializer.save(user=self.request.user)
 
-    # def perform_create(self, serializer):
-    #     '''
-    #     Adding Recipe and Ingredients from database or creating them
-    #     if not available.
-    #     Also setting the recipe user as the request user
-    #     '''
-    #     recipe_related_qs = self.request.user.recipes.all()
-    #     recipe_names = [recipe.name for recipe in recipe_related_qs]
+    @action(methods=['POST'], detail=True, url_path='upload-image')
+    def upload_image(self, request, pk=None):
 
-    #     if serializer.validated_data['name'] in recipe_names:
-    #         msg = 'Recipes can not have duplicate names'
-    #         raise ValueError(msg)
+        recipe = self.get_object()
+        serializer = self.get_serializer(
+            recipe,
+            data=request.data
+        )
 
-    #     for tag_name in serializer.validated_data['tags']:
-
-    #         tag = models.Tag.objects.filter(
-    #             name=tag_name,
-    #             user=self.request.user
-    #             ).first()
-            
-    #         if not tag:
-    #             tag = models.Tag.objects.create(
-    #                 name=tag_name,
-    #                 user=self.request.user
-    #             )
-            
-    #         tag_serialized = TagSerializer(tag).data
-    #         serializer.validated_data['tags'] += tag_serialized
-
-    #     for ingredient_name in serializer.validated_data['ingredients']:
-
-    #         ingredient = models.Ingredient.objects.filter(
-    #             name=ingredient_name,
-    #             user=self.request.user
-    #         ).first()
-
-    #         if not ingredient:
-    #             ingredient = models.Ingredient.create(
-    #                 name=ingredient_name,
-    #                 user=self.request.user
-    #             )
-            
-    #         ingredient_serialized = IngredientSerializer(ingredient).data
-    #         serializer.validated_data['ingredients'] += ingredient_serialized
-
-    #     serializer.save(user=self.request.user)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(
+                serializer.data,
+                status=status.HTTP_200_OK
+            )
+        
+        return Response(
+            serializer.errors,
+            status=status.HTTP_400_BAD_REQUEST
+        )

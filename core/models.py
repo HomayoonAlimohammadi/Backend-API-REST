@@ -6,7 +6,7 @@ import uuid
 import os
 
 
-def recipe_image_field_url(filename):
+def recipe_image_field_url(instance, filename):
     '''
     Generate url for the recipe image field
     '''
