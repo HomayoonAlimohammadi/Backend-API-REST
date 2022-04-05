@@ -1,10 +1,12 @@
-<h1 align='center'>Build a Backend REST API with Python & Django - Advanced</h1>
+<h1 align='center'>REST API with Python & Django</h1>
 
 <p align='center'>
 <img align=center src="https://img.shields.io/badge/Python-informational?style=flat&logo=Python&logoColor=3776AB&color=292A2D" />
 <img align=center src="https://img.shields.io/badge/Django-informational?style=flat&logo=Django&logoColor=092E20&color=292A2D" />
 <img align=center src="https://img.shields.io/badge/Docker-informational?style=flat&logo=Docker&logoColor=2496ED&color=292A2D" />
 <img align=center src="https://img.shields.io/badge/PostgreSQL-informational?style=flat&logo=PostgreSQL&logoColor=4169E1&color=292A2D" />
+<img align=center src="https://img.shields.io/badge/GitHub Actions-informational?style=flat&logo=GitHub Actions&logoColor=2088FF&color=292A2D" />
+
 </p>
 <br/>
 <p>
