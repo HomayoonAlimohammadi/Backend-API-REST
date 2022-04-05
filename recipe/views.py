@@ -23,7 +23,7 @@ class RecipeAttributesViewSets(viewsets.GenericViewSet,
         )
 
         if assigned_only:
-            queryset = queryset.filter(id=1)
+            queryset = queryset.filter(recipes__isnull=False)
 
         return queryset.filter(user=self.request.user).distinct()
 

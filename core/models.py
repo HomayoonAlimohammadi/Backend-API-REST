@@ -119,7 +119,7 @@ class Recipe(models.Model):
     )
     tags = models.ManyToManyField(
         'Tag',
-        related_name='tags'
+        related_name='recipes'
     )
 
     def __str__(self):
