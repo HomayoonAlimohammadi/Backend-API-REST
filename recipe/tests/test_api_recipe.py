@@ -329,7 +329,7 @@ class RecipeImageTests(TestCase):
         res = self.client.get(RECIPE_URL, 
             {'tags': f'{tag1.id},{tag2.id}'}
         )        
-        
+
         recipe1_serialized = RecipeSerializer(recipe1)
         recipe2_serialized = RecipeSerializer(recipe2)
         recipe3_serialized = RecipeSerializer(recipe3)
@@ -347,8 +347,10 @@ class RecipeImageTests(TestCase):
         recipe2 = Recipe.objects.create(title='recipe 2', user=self.user)
         recipe3 = Recipe.objects.create(title='recipe 3', user=self.user)
 
-        ingredient1 = Ingredient.objects.create(name='ingredient 1', user=self.user)
-        ingredient2 = Ingredient.objects.create(name='ingredient 2', user=self.user)
+        ingredient1 = Ingredient.objects.create(name='ingredient 1', 
+                                                user=self.user)
+        ingredient2 = Ingredient.objects.create(name='ingredient 2', 
+                                                user=self.user)
 
         recipe1.ingredients.add(ingredient1)
         recipe2.ingredients.add(ingredient2)
