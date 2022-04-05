@@ -4,7 +4,7 @@ from django.test import TestCase
 from rest_framework import status
 from rest_framework.test import APIClient
 
-from core.models import Ingredient
+from core.models import Ingredient, Recipe
 from recipe.serializers import IngredientSerializer
 
 from django.urls import reverse
@@ -125,3 +125,40 @@ class PrivateIngredientsAPITests(TestCase):
 
         with self.assertRaises(ValueError):
             self.client.post(INGREDIENTS_URL, payload)
+
+    def test_return_assinged_ingredients_only(self):
+        '''
+        Test returning assigned only ingredients and nothing more
+        '''
+
+        ingredient1 = Ingredient.objects.create(name='ingrd1', user=self.user)
+        ingredient2 = Ingredient.objects.create(name='ingrd2', user=self.user)
+
+        recipe1 = Recipe.objects.create(title='recipe 1', user=self.user)
+
+        recipe1.ingredients.add(ingredient1)
+
+        res = self.client.get(INGREDIENTS_URL, {'assigned_only': 1})
+
+        ingredient1_serialized = IngredientSerializer(ingredient1)
+        ingredient2_serialized = IngredientSerializer(ingredient2)
+
+        self.assertIn(ingredient1_serialized.data, res.data)
+        self.assertNotIn(ingredient2_serialized.data, res.data)
+
+    def test_return_unique_ingredients(self):
+        '''
+        Test not returning duplicate ingredients
+        '''
+        ingredient1 = Ingredient.objects.create(name='ingrd1', user=self.user)
+        Ingredient.objects.create(name='ingrd2', user=self.user)
+
+        recipe1 = Recipe.objects.create(title='recipe1', user=self.user)
+        recipe1.ingredients.add(ingredient1)
+
+        recipe2 = Recipe.objects.create(title='recipe2', user=self.user)
+        recipe2.ingredients.add(ingredient1)
+
+        res = self.client.get(INGREDIENTS_URL, {'assigned_only': 1})
+
+        self.assertEqual(len(res.data), 1)

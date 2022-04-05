@@ -10,15 +10,22 @@ from recipe.serializers import (IngredientSerializer, RecipeDetailSerializer,
 
 class RecipeAttributesViewSets(viewsets.GenericViewSet,
                                mixins.ListModelMixin,
-                               mixins.CreateModelMixin,
-                               mixins.UpdateModelMixin,
-                               mixins.RetrieveModelMixin,
-                               mixins.DestroyModelMixin):
+                               mixins.CreateModelMixin):
+
     authentication_classes = [authentication.TokenAuthentication]
     permission_classes = [permissions.IsAuthenticated]    
 
     def get_queryset(self):
-        return self.queryset.filter(user=self.request.user) 
+
+        queryset = self.queryset
+        assigned_only = bool(
+            int(self.request.query_params.get('assigned_only', 0))
+        )
+
+        if assigned_only:
+            queryset = queryset.filter(id=1)
+
+        return queryset.filter(user=self.request.user).distinct()
 
 
 class TagAPIViewSets(RecipeAttributesViewSets):

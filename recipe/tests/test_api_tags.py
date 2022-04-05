@@ -1,5 +1,5 @@
 from django.test import TestCase
-from core.models import Tag
+from core.models import Recipe, Tag
 from django.contrib.auth import get_user_model
 from rest_framework import status
 from django.urls import reverse
@@ -128,3 +128,56 @@ class PrivateTagsTests(TestCase):
 
         with self.assertRaises(ValueError):
             self.client.post(TAGS_URL, payload)
+
+    def test_return_assinged_tags_only(self):
+        '''
+        Test returning assigned only tags and nothing more
+        '''
+
+        tag1 = Tag.objects.create(name='tag1', user=self.user)
+        tag2 = Tag.objects.create(name='tag2', user=self.user)
+
+        recipe = Recipe.objects.create(
+            title='recipe1', 
+            user=self.user,
+            price=5.00,
+            time_minutes=3
+        )
+        recipe.tags.add(tag1)
+
+        res = self.client.get(TAGS_URL, {'assigned_only': 1})
+
+        tag1_serialized = TagSerializer(tag1)
+        tag2_serialized = TagSerializer(tag2)
+
+        self.assertIn(tag1_serialized.data, res.data)
+        self.assertNotIn(tag2_serialized.data, res.data)
+
+    def test_return_unique_tags(self):
+        '''
+        Test not returning multiple tags for the same instance
+        '''
+
+        tag = Tag.objects.create(name='tag1', user=self.user)
+        Tag.objects.create(name='tag2', user=self.user)
+
+        recipe1 = Recipe.objects.create(
+            title='recipe1', 
+            user=self.user,
+            price=5.00,
+            time_minutes=3
+        )
+        recipe2 = Recipe.objects.create(
+            title='recipe2', 
+            user=self.user,
+            price=5.00,
+            time_minutes=3
+        )
+        recipe1.tags.add(tag)
+        recipe2.tags.add(tag)
+
+        # print(tag.recipe_set.all())
+
+        res = self.client.get(TAGS_URL, {'assigned_only': 1})
+
+        self.assertEqual(len(res.data), 1)
