@@ -22,3 +22,4 @@ Thanks to <b>London App Dev</b> and <b>Udemy</b> for this wonderful course!
 <li><b>RESTful</b> API with <b>Django REST Framework</b></li>
 <li>Also a <b>Browsable</b> API</li>
 <li>Advanced <b>filtering</b> with reverse relations</li>
+<li>Use of <b>GitHub Actions</b> and <b>Docker</b> for <b>CI/CD</b> purposes</li>
